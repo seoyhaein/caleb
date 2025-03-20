@@ -1,0 +1,139 @@
+{
+  "pipeline": {
+    "name": "Pipeline A",
+    "globalFiles": {
+      "executorShell": "./executor.sh",
+      "dockerfilePath": "./Dockerfile",
+      "healthcheckShell": "./healthcheck.sh",
+      "installShell": "./install.sh",
+      "userScriptShell": "./scripts/user_script.sh"
+    },
+    "nodes": [
+      {
+        "nodeId": "start",
+        "type": "start",
+        "next": ["1"]
+      },
+      {
+        "nodeId": "1",
+        "type": "pair",
+        "next": ["2", "3", "4"],
+        "details": {
+          "image": {
+            "id": "img1",
+            "sourceImageName": "",
+            "targetImageName": "",
+            "imageSavePath": "./images/1/"
+          },
+          "container": {
+            "workDir": "/app",
+            "directories": ["/app", "/app/scripts"],
+            "scriptMap": {
+              "/app": ["./executor.sh", "./healthcheck.sh", "./install.sh"],
+              "/app/scripts": ["./scripts/user_script.sh"]
+            },
+            "permissionFiles": [
+              "/app/executor.sh",
+              "/app/install.sh",
+              "/app/healthcheck.sh",
+              "/app/scripts/user_script.sh"
+            ],
+            "cmd": ["/bin/sh", "-c", "/app/executor.sh"],
+            "resources": {
+              "cpuShares": 1024,
+              "memory": "512m",
+              "memorySwap": "1g",
+              "pidsLimit": 100
+            },
+            "volumes": [
+              {
+                "hostPath": "/data/pipelineA/node1/output",
+                "containerPath": "/app/output"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "nodeId": "2",
+        "type": "pair",
+        "next": ["5"],
+        "details": {
+          "image": {
+            "id": "img2",
+            "sourceImageName": "",
+            "targetImageName": "",
+            "imageSavePath": "./images/2/"
+          },
+          "container": {
+            "workDir": "/app",
+            "directories": ["/app", "/app/scripts"],
+            "scriptMap": {
+              "/app": ["./executor.sh", "./healthcheck.sh", "./install.sh"],
+              "/app/scripts": ["./scripts/user_script.sh"]
+            },
+            "permissionFiles": [
+              "/app/executor.sh",
+              "/app/install.sh",
+              "/app/healthcheck.sh",
+              "/app/scripts/user_script.sh"
+            ],
+            "cmd": ["/bin/sh", "-c", "/app/executor.sh"],
+            "resources": {
+              "cpuShares": 1024,
+              "memory": "512m",
+              "memorySwap": "1g",
+              "pidsLimit": 100
+            },
+            "volumes": [
+              {
+                "hostPath": "/data/pipelineA/node1/output",
+                "containerPath": "/app/input"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "nodeId": "3",
+        "type": "pair",
+        "next": ["end"],
+        "details": {
+          "image": {
+            "id": "img3",
+            "sourceImageName": "",
+            "targetImageName": "",
+            "imageSavePath": "./images/3/"
+          },
+          "container": {
+            "workDir": "/app",
+            "directories": ["/app", "/app/scripts"],
+            "scriptMap": {
+              "/app": ["./executor.sh", "./healthcheck.sh", "./install.sh"],
+              "/app/scripts": ["./scripts/user_script.sh"]
+            },
+            "permissionFiles": [
+              "/app/executor.sh",
+              "/app/install.sh",
+              "/app/healthcheck.sh",
+              "/app/scripts/user_script.sh"
+            ],
+            "cmd": ["/bin/sh", "-c", "/app/executor.sh"],
+            "resources": {
+              "cpuShares": 1024,
+              "memory": "512m",
+              "memorySwap": "1g",
+              "pidsLimit": 100
+            },
+            "volumes": []
+          }
+        }
+      },
+      {
+        "nodeId": "end",
+        "type": "end",
+        "next": []
+      }
+    ]
+  }
+}
