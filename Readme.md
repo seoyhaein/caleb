@@ -7,4 +7,12 @@
 - 과정을 잘 설계해야함. (중요)
 - https://github.com/goccy/go-yaml 설치 필요.
 - pipeline.json 설계 및 제작 중 지속적으로 업데이트 필요.
-- 파이프라인과 tori 연결해줘야 한다.
+- 파이프라인과 tori 연결해줘야 한다.  
+
+### pipeline_v3
+- 삭제 아래 필드.
+-  "memorySwap"
+-  "pidsLimit" 
+- 추가 되어야 할 것이, 데이터 블럭에 대한 내용.
+- 각 노드의 제한시간.
+- pod 에 대한 내용.
