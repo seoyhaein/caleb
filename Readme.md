@@ -16,3 +16,27 @@
 - 추가 되어야 할 것이, 데이터 블럭에 대한 내용.
 - 각 노드의 제한시간.
 - pod 에 대한 내용.
+- 아래 내용 참고해서 1차적으로 완성하고 보완하자.
+
+```aiignore
+func (c *ContainerCollection) RunE(a interface{}) (int, error) {
+	node, ok := a.(*dag.Node)
+	if !ok {
+		return 9, fmt.Errorf("invalid input: expected *dag.Node")
+	}
+
+	// node.Id와 매칭되는 Container 설정을 찾음
+	var containerConfig *Container
+	for i, cont := range c.Containers {
+		if cont.NodeID == node.Id {
+			containerConfig = &c.Containers[i]
+			break
+		}
+	}
+	if containerConfig == nil {
+		return 9, fmt.Errorf("no container configuration found for node id: %s", node.Id)
+	}
+
+	return 0, nil
+}
+```
