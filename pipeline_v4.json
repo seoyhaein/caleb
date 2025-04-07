@@ -21,8 +21,8 @@
           "image": {
             "id": "img1",
             "dockerfilePath": "./Dockerfile",
-            "sourceImageName": "",
-            "targetImageName": "",
+            "sourceImageName": "base_image",
+            "targetImageName": "pipeline_a_img1",
             "imageSavePath": "./images/1/"
           },
           "container": {
@@ -67,8 +67,8 @@
           "image": {
             "id": "img2",
             "dockerfilePath": "./Dockerfile",
-            "sourceImageName": "",
-            "targetImageName": "",
+            "sourceImageName": "pipeline_a_img1",
+            "targetImageName": "pipeline_a_img2",
             "imageSavePath": "./images/2/"
           },
           "container": {
@@ -113,8 +113,8 @@
           "image": {
             "id": "img3",
             "dockerfilePath": "./Dockerfile",
-            "sourceImageName": "",
-            "targetImageName": "",
+            "sourceImageName": "pipeline_a_img1",
+            "targetImageName": "pipeline_a_img3",
             "imageSavePath": "./images/3/"
           },
           "container": {
@@ -142,7 +142,12 @@
               },
               "oomScore": -500
             },
-            "volumes": []
+            "volumes": [
+              {
+                "hostPath": "/data/pipelineA/node1/output",
+                "containerPath": "/app/input"
+              }
+            ]
           }
         }
       },

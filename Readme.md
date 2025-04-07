@@ -8,6 +8,7 @@
 - https://github.com/goccy/go-yaml 설치 필요.
 - pipeline.json 설계 및 제작 중 지속적으로 업데이트 필요.
 - 파이프라인과 tori 연결해줘야 한다.  
+- 유전체 분석 파이프라인을 만들어가면서 수정해나가야 함.  
 
 ### pipeline_v3
 - 삭제 아래 필드.
@@ -25,7 +26,7 @@ func (c *ContainerCollection) RunE(a interface{}) (int, error) {
 		return 9, fmt.Errorf("invalid input: expected *dag.Node")
 	}
 
-	// node.Id와 매칭되는 Container 설정을 찾음
+
 	var containerConfig *Container
 	for i, cont := range c.Containers {
 		if cont.NodeID == node.Id {

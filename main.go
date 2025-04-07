@@ -1,16 +1,6 @@
 package main
 
-import (
-	"context"
-	"encoding/json"
-	"fmt"
-	"log"
-	"os"
-
-	"github.com/seoyhaein/dag-go" // DAG 관련 코드가 있는 패키지 (실제 import 경로에 맞게 수정)
-)
-
-// PipelineConfig는 최상위 JSON 구조를 나타냅니다.
+/*// PipelineConfig는 최상위 JSON 구조를 나타냅니다.
 type PipelineConfig struct {
 	Pipeline Pipeline `json:"pipeline"`
 }
@@ -25,7 +15,6 @@ type Pipeline struct {
 // GlobalFiles는 글로벌 스크립트/파일 경로들을 정의합니다.
 type GlobalFiles struct {
 	ExecutorShell    string `json:"executorShell"`
-	DockerfilePath   string `json:"dockerfilePath"`
 	HealthcheckShell string `json:"healthcheckShell"`
 	InstallShell     string `json:"installShell"`
 	UserScriptShell  string `json:"userScriptShell"`
@@ -47,6 +36,7 @@ type NodeDetails struct {
 
 type ImageConfig struct {
 	ID              string `json:"id"`
+	DockerfilePath  string `json:"dockerfilePath"`
 	SourceImageName string `json:"sourceImageName"`
 	TargetImageName string `json:"targetImageName"`
 	ImageSavePath   string `json:"imageSavePath"`
@@ -81,9 +71,9 @@ type MemoryConfig struct {
 type VolumeConfig struct {
 	HostPath      string `json:"hostPath"`
 	ContainerPath string `json:"containerPath"`
-}
+}*/
 
-// CreateDagFromPipelineConfig 는 파싱한 PipelineConfig를 바탕으로 dag_go.Dag 를 생성합니다.
+/*// CreateDagFromPipelineConfig 는 파싱한 PipelineConfig를 바탕으로 dag_go.Dag 를 생성합니다.
 func CreateDagFromPipelineConfig(config *PipelineConfig) (*dag_go.Dag, error) {
 	// DAG 초기화 (InitDag 내부에서 start 노드를 생성합니다)
 	dag, err := dag_go.InitDag()
@@ -149,10 +139,10 @@ func CreateDagFromPipelineConfig(config *PipelineConfig) (*dag_go.Dag, error) {
 		return nil, fmt.Errorf("failed to finish dag: %w", err)
 	}
 	return dag, nil
-}
+}*/
 
 func main() {
-	filename := "pipeline_v3.json"
+	/*filename := "pipeline_v3.json"
 	data, err := os.ReadFile(filename)
 
 	var pipelineConfig PipelineConfig
@@ -177,6 +167,6 @@ func main() {
 	b2 := dag.Wait(ctx)
 	if b2 != true {
 		os.Exit(1)
-	}
+	}*/
 	// 필요한 경우 생성된 DAG의 세부 정보를 출력하거나 추가 로직을 진행합니다.
 }
