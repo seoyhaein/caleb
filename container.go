@@ -121,7 +121,7 @@ func (p *Pipeline) CreateDagFromPipeline() (*dag_go.Dag, error) {
 				return nil, fmt.Errorf("failed to create node with id: %s", n.NodeID)
 			}
 		}
-		nodeMap[node.Id] = node
+		nodeMap[node.ID] = node
 		// TODO 필요하다면 여기서 n.Details 등을 사용해 추가 정보를 설정할 수 있음. 그런데 이렇게 하면 node 구조체를 수정해줘야 하는데.
 	}
 
@@ -133,7 +133,7 @@ func (p *Pipeline) CreateDagFromPipeline() (*dag_go.Dag, error) {
 		var currentNodeID string
 		switch n1.NodeID {
 		case "start":
-			currentNodeID = dag.StartNode.Id
+			currentNodeID = dag.StartNode.ID
 		case "end":
 			continue
 		default:
@@ -178,14 +178,14 @@ func (p *Pipeline) RunE(a interface{}) error {
 	// Pipeline 내의 노드 목록에서 node.Id와 일치하는 노드를 찾습니다.
 	var pipelineNode *Node
 	for i, n := range p.Nodes {
-		if n.NodeID == node.Id {
+		if n.NodeID == node.ID {
 
 			pipelineNode = &p.Nodes[i]
 			break
 		}
 	}
 	if pipelineNode == nil {
-		return fmt.Errorf("no container configuration found for node id: %s", node.Id)
+		return fmt.Errorf("no container configuration found for node id: %s", node.ID)
 	}
 
 	// pipelineNode.Details에는 이미지 빌드 및 컨테이너 실행에 필요한 설정이 포함되어 있습니다.

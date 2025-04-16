@@ -4,7 +4,7 @@ go 1.23.0
 
 toolchain go1.23.7
 
-require github.com/seoyhaein/dag-go v0.0.8
+require github.com/seoyhaein/dag-go v0.0.9
 
 require (
 	github.com/dlsniper/debugger v0.6.0 // indirect
