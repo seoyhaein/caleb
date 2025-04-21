@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package protos;
+option go_package = "github.com/seoyhaein/caleb/protos";
+
+// 검증·빌드 상태
+enum BuildStatus {
+  OK    = 0;  // 문제 없음
+  WARN  = 1;  // 경고만 있음(진행 가능)
+  FAIL  = 2;  // 치명적 오류(반려)
+}
+
+// 요청 메시지
+message DockerfileRequest {
+  // Dockerfile 전체 텍스트
+  string dockerfile_content = 1;
+  // 이미 서버에 저장된 Dockerfile 을 다시 참조할 때 사용, 처음 보낼때는 값을 empty 로 보낸다.
+  string dockerfile_id      = 2;
+}
+
+// 응답 메시지
+message DockerfileResponse {
+  // 처리된 Dockerfile 의 고유 ID (서버가 생성 또는 재사용)
+  string      dockerfile_id = 1;
+  // 검증 또는 빌드 결과 상태
+  BuildStatus status        = 2;
+  // 위험 구문·경고·오류 메시지 목록
+  repeated string messages  = 3;
+}
+
+// StageBuilder 서비스: Dockerfile 을 받아 검증 후 빌드 스테이지 이미지 빌드를 수행
+service StageBuilder {
+  rpc BuildStage(DockerfileRequest) returns (DockerfileResponse);
+}
