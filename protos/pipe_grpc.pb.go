@@ -19,105 +19,105 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	StageBuilder_BuildStage_FullMethodName = "/protos.StageBuilder/BuildStage"
+	StageBuilderService_BuildStageImage_FullMethodName = "/protos.StageBuilderService/BuildStageImage"
 )
 
-// StageBuilderClient is the client API for StageBuilder service.
+// StageBuilderServiceClient is the client API for StageBuilderService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
 // StageBuilder 서비스: Dockerfile 을 받아 검증 후 빌드 스테이지 이미지 빌드를 수행
-type StageBuilderClient interface {
-	BuildStage(ctx context.Context, in *DockerfileRequest, opts ...grpc.CallOption) (*DockerfileResponse, error)
+type StageBuilderServiceClient interface {
+	BuildStageImage(ctx context.Context, in *DockerfileRequest, opts ...grpc.CallOption) (*DockerfileResponse, error)
 }
 
-type stageBuilderClient struct {
+type stageBuilderServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewStageBuilderClient(cc grpc.ClientConnInterface) StageBuilderClient {
-	return &stageBuilderClient{cc}
+func NewStageBuilderServiceClient(cc grpc.ClientConnInterface) StageBuilderServiceClient {
+	return &stageBuilderServiceClient{cc}
 }
 
-func (c *stageBuilderClient) BuildStage(ctx context.Context, in *DockerfileRequest, opts ...grpc.CallOption) (*DockerfileResponse, error) {
+func (c *stageBuilderServiceClient) BuildStageImage(ctx context.Context, in *DockerfileRequest, opts ...grpc.CallOption) (*DockerfileResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DockerfileResponse)
-	err := c.cc.Invoke(ctx, StageBuilder_BuildStage_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, StageBuilderService_BuildStageImage_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// StageBuilderServer is the server API for StageBuilder service.
-// All implementations must embed UnimplementedStageBuilderServer
+// StageBuilderServiceServer is the server API for StageBuilderService service.
+// All implementations must embed UnimplementedStageBuilderServiceServer
 // for forward compatibility.
 //
 // StageBuilder 서비스: Dockerfile 을 받아 검증 후 빌드 스테이지 이미지 빌드를 수행
-type StageBuilderServer interface {
-	BuildStage(context.Context, *DockerfileRequest) (*DockerfileResponse, error)
-	mustEmbedUnimplementedStageBuilderServer()
+type StageBuilderServiceServer interface {
+	BuildStageImage(context.Context, *DockerfileRequest) (*DockerfileResponse, error)
+	mustEmbedUnimplementedStageBuilderServiceServer()
 }
 
-// UnimplementedStageBuilderServer must be embedded to have
+// UnimplementedStageBuilderServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedStageBuilderServer struct{}
+type UnimplementedStageBuilderServiceServer struct{}
 
-func (UnimplementedStageBuilderServer) BuildStage(context.Context, *DockerfileRequest) (*DockerfileResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method BuildStage not implemented")
+func (UnimplementedStageBuilderServiceServer) BuildStageImage(context.Context, *DockerfileRequest) (*DockerfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BuildStageImage not implemented")
 }
-func (UnimplementedStageBuilderServer) mustEmbedUnimplementedStageBuilderServer() {}
-func (UnimplementedStageBuilderServer) testEmbeddedByValue()                      {}
+func (UnimplementedStageBuilderServiceServer) mustEmbedUnimplementedStageBuilderServiceServer() {}
+func (UnimplementedStageBuilderServiceServer) testEmbeddedByValue()                             {}
 
-// UnsafeStageBuilderServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to StageBuilderServer will
+// UnsafeStageBuilderServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to StageBuilderServiceServer will
 // result in compilation errors.
-type UnsafeStageBuilderServer interface {
-	mustEmbedUnimplementedStageBuilderServer()
+type UnsafeStageBuilderServiceServer interface {
+	mustEmbedUnimplementedStageBuilderServiceServer()
 }
 
-func RegisterStageBuilderServer(s grpc.ServiceRegistrar, srv StageBuilderServer) {
-	// If the following call pancis, it indicates UnimplementedStageBuilderServer was
+func RegisterStageBuilderServiceServer(s grpc.ServiceRegistrar, srv StageBuilderServiceServer) {
+	// If the following call pancis, it indicates UnimplementedStageBuilderServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&StageBuilder_ServiceDesc, srv)
+	s.RegisterService(&StageBuilderService_ServiceDesc, srv)
 }
 
-func _StageBuilder_BuildStage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _StageBuilderService_BuildStageImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DockerfileRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(StageBuilderServer).BuildStage(ctx, in)
+		return srv.(StageBuilderServiceServer).BuildStageImage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: StageBuilder_BuildStage_FullMethodName,
+		FullMethod: StageBuilderService_BuildStageImage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StageBuilderServer).BuildStage(ctx, req.(*DockerfileRequest))
+		return srv.(StageBuilderServiceServer).BuildStageImage(ctx, req.(*DockerfileRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// StageBuilder_ServiceDesc is the grpc.ServiceDesc for StageBuilder service.
+// StageBuilderService_ServiceDesc is the grpc.ServiceDesc for StageBuilderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var StageBuilder_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.StageBuilder",
-	HandlerType: (*StageBuilderServer)(nil),
+var StageBuilderService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "protos.StageBuilderService",
+	HandlerType: (*StageBuilderServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "BuildStage",
-			Handler:    _StageBuilder_BuildStage_Handler,
+			MethodName: "BuildStageImage",
+			Handler:    _StageBuilderService_BuildStageImage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

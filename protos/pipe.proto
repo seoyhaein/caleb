@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+// TODO 이거 계속 확장해나가야 함. 지금은 dockerfile 만 적용했음.
+
 package protos;
 option go_package = "github.com/seoyhaein/caleb/protos";
 
@@ -29,6 +31,6 @@ message DockerfileResponse {
 }
 
 // StageBuilder 서비스: Dockerfile 을 받아 검증 후 빌드 스테이지 이미지 빌드를 수행
-service StageBuilder {
-  rpc BuildStage(DockerfileRequest) returns (DockerfileResponse);
+service StageBuilderService {
+  rpc BuildStageImage(DockerfileRequest) returns (DockerfileResponse);
 }
