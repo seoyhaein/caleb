@@ -1,0 +1,138 @@
+{
+  "id": "pipelineA",
+  "name": "Pipeline A",
+  "createdAt": "2025-07-28T19:00:00Z",
+  "createdBy": "alice@example.com",
+  "metadata": {
+    "project": "genome-analysis",
+    "version": "v1.0"
+  },
+  "inputs": [
+    {
+      "name": "sample_R1.fastq",
+      "hostPath": "/data/samples/set1/R1.fastq",
+      "containerPath": "/mnt/R1.fastq",
+      "type": "bind"
+    },
+    {
+      "name": "sample_R2.fastq",
+      "hostPath": "/data/samples/set1/R2.fastq",
+      "containerPath": "/mnt/R2.fastq",
+      "type": "bind"
+    }
+  ],
+  "nodes": [
+    {
+      "nodeId": "start",
+      "dag": {
+        "type": "start",
+        "prev": [],
+        "next": ["1"]
+      },
+      "container": {
+        "image": "alpine:latest",
+        "userScript": "",
+        "resources": {
+          "limits": { "cpu": "250m", "memory": "256Mi" },
+          "requests": { "cpu": "250m", "memory": "256Mi" }
+        },
+        "env": [],
+        "data": {
+          "shared": [
+            {
+              "name": "ref.fa",
+              "hostPath": "/data/ref.fa",
+              "containerPath": "/mnt/ref.fa",
+              "type": "volume"
+            }
+          ],
+          "channels": {
+            "1": "all"
+          }
+        }
+      }
+    },
+    {
+      "nodeId": "1",
+      "dag": {
+        "type": "task",
+        "prev": ["start"],
+        "next": ["2"]
+      },
+      "container": {
+        "image": "pipeline_img1:latest",
+        "userScript": "#!/bin/sh\necho Processing...\n",
+        "resources": {
+          "limits": { "cpu": "500m", "memory": "512Mi" },
+          "requests": { "cpu": "500m", "memory": "512Mi" }
+        },
+        "env": [],
+        "data": {
+          "shared": [
+            {
+              "name": "ref.fa",
+              "hostPath": "/data/ref.fa",
+              "containerPath": "/mnt/ref.fa",
+              "type": "volume"
+            }
+          ],
+          "channels": {
+            "2": "all"
+          }
+        }
+      }
+    },
+    {
+      "nodeId": "2",
+      "dag": {
+        "type": "task",
+        "prev": ["1"],
+        "next": ["end"]
+      },
+      "container": {
+        "image": "pipeline_img2:latest",
+        "userScript": "#!/bin/sh\necho Finalizing...\n",
+        "resources": {
+          "limits": { "cpu": "500m", "memory": "512Mi" },
+          "requests": { "cpu": "500m", "memory": "512Mi" }
+        },
+        "env": [],
+        "data": {
+          "shared": [
+            {
+              "name": "ref.fa",
+              "hostPath": "/data/ref.fa",
+              "containerPath": "/mnt/ref.fa",
+              "type": "volume"
+            }
+          ],
+          "channels": {
+            "end": "all"
+          }
+        }
+      }
+    },
+    {
+      "nodeId": "end",
+      "dag": {
+        "type": "end",
+        "prev": ["2"],
+        "next": []
+      },
+      "container": {
+        "image": "alpine:latest",
+        "userScript": "",
+        "resources": {
+          "limits": { "cpu": "250m", "memory": "256Mi" },
+          "requests": { "cpu": "250m", "memory": "256Mi" }
+        },
+        "env": [],
+        "data": {
+          "shared": [],
+          "channels": {}
+        }
+      }
+    }
+  ]
+}
+

@@ -1,0 +1,76 @@
+[
+  {
+    "id": "unique_volume_id_1",
+    "schema_version": "2025-05-01",
+    "name": "hg38_reference_genome",
+    "description": "GRCh38/hg38 인간 참조 유전체 및 GTF 파일",
+    "source_path_on_host": "/mnt/shared_data/volumes/hg38_v1",
+    "mount_path_in_container": "/references/hg38",
+    "read_only": true,
+    "version": "1.0.0",
+    "size_bytes": 10737418240,
+    "created_timestamp": "2025-05-22T10:30:00Z",
+    "last_modified_timestamp": "2025-05-23T12:00:00Z",
+    "checksum": {
+      "algorithm": "sha256",
+      "value": "3a7bd3e2360a...f5b6"
+    },
+    "owner": {
+      "name": "Genomics Team",
+      "contact": "genomics-team@lab.org"
+    },
+    "tags": [
+      "genome_reference",
+      "homo_sapiens",
+      "hg38"
+    ],
+    "mount_options": [
+      "ro",
+      "rslave"
+    ],
+    "retention_policy": {
+      "type": "permanent"
+    },
+    "custom_metadata": {
+      "data_type": "genome_reference",
+      "organism": "homo_sapiens"
+    }
+  },
+  {
+    "id": "unique_volume_id_2",
+    "schema_version": "2025-05-01",
+    "name": "bwa_indexes_hg38",
+    "description": "hg38 참조 유전체에 대한 BWA 인덱스 파일들",
+    "source_path_on_host": "/mnt/shared_data/volumes/bwa_indexes_hg38_v2",
+    "mount_path_in_container": "/indexes/bwa/hg38",
+    "read_only": true,
+    "version": "2.1.0",
+    "size_bytes": 5368709120,
+    "created_timestamp": "2025-05-20T14:00:00Z",
+    "last_modified_timestamp": "2025-05-23T12:00:00Z",
+    "checksum": {
+      "algorithm": "sha256",
+      "value": "b7c8d9e4471f...a2c3"
+    },
+    "owner": {
+      "name": "Genomics Team",
+      "contact": "genomics-team@lab.org"
+    },
+    "tags": [
+      "bwa_index",
+      "hg38",
+      "alignment"
+    ],
+    "mount_options": [
+      "ro",
+      "rslave"
+    ],
+    "retention_policy": {
+      "type": "permanent"
+    },
+    "custom_metadata": {
+      "indexer_version": "0.7.17",
+      "reference_volume_id": "unique_volume_id_1"
+    }
+  }
+]

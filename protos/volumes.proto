@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package protos;
+
+// mono-repo 로 구성할때 다 수정해줘야 한다.
+
+import "google/protobuf/timestamp.proto";
+option go_package = "github.com/seoyhaein/caleb/protos";
+
+// 체크섬 정보
+message Checksum {
+  string algorithm = 1; // 해시 알고리즘 (예: sha256)
+  string value = 2;     // 해시 값
+}
+
+// 볼륨 메타데이터
+message Volume {
+  string id                      = 1; // 고유 식별자
+  string schema_version          = 2; // 스키마 버전
+  string name                    = 3; // 사람이 읽기 쉬운 볼륨 이름
+  string description             = 4; // 상세 설명
+  string source_path_on_host     = 5; // 호스트 상의 원본 경로
+  string mount_path_in_container = 6; // 컨테이너 내 마운트 경로
+  bool   read_only               = 7; // 읽기 전용 여부
+  string version                 = 8; // 볼륨 버전
+  uint64 size_bytes              = 9; // 용량 (바이트 단위)
+  google.protobuf.Timestamp created_timestamp       = 10; // 생성 시각
+  google.protobuf.Timestamp last_modified_timestamp = 11; // 최종 수정 시각
+  Checksum      checksum        = 12; // 무결성 검증용 체크섬
+  repeated string tags          = 13; // 태그 리스트
+  repeated string mount_options = 14; // 마운트 옵션
+  map<string, string> custom_metadata = 15; // 확장용 메타데이터
+}
+
+// 여러 볼륨을 담는 리스트
+message VolumeList {
+  repeated Volume volumes = 1;
+}

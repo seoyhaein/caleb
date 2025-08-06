@@ -1,0 +1,219 @@
+{
+  "id": "pipelineA",
+  "runId": "20250806-153000-abcdef",
+  "name": "Pipeline A",
+  "createdAt": "2025-07-28T19:00:00Z",
+  "createdBy": "alice@example.com",
+  "metadata": {
+    "project": "genome-analysis",
+    "version": "v1.0"
+  },
+
+  "storage": {
+    "type": "overlay",
+    "common": {
+      "lowerDir": "/mnt/overlay/lower"
+    },
+    "branches": {
+      "1": {
+        "upperDir": "/mnt/overlay/${runId}/1-upper",
+        "workDir":  "/mnt/overlay/${runId}/1-work",
+        "mountPath": "/data/step1"
+      },
+      "2": {
+        "upperDir": "/mnt/overlay/${runId}/2-upper",
+        "workDir":  "/mnt/overlay/${runId}/2-work",
+        "mountPath": "/data/step2"
+      },
+      "3": {
+        "upperDir": "/mnt/overlay/${runId}/3-upper",
+        "workDir":  "/mnt/overlay/${runId}/3-work",
+        "mountPath": "/data/step3"
+      },
+      "4": {
+        "upperDir": "/mnt/overlay/${runId}/4-upper",
+        "workDir":  "/mnt/overlay/${runId}/4-work",
+        "mountPath": "/data/step4"
+      },
+      "5": {
+        "upperDir": "/mnt/overlay/${runId}/5-upper",
+        "workDir":  "/mnt/overlay/${runId}/5-work",
+        "mountPath": "/data/step5"
+      },
+      "6": {
+        "upperDir": "/mnt/overlay/${runId}/6-upper",
+        "workDir":  "/mnt/overlay/${runId}/6-work",
+        "mountPath": "/data/step6"
+      }
+    }
+  },
+
+  "inputs": [
+    {
+      "name": "sample_R1.fastq",
+      "hostPath": "/data/samples/set1/R1.fastq",
+      "containerPath": "/mnt/R1.fastq",
+      "type": "bind"
+    },
+    {
+      "name": "sample_R2.fastq",
+      "hostPath": "/data/samples/set1/R2.fastq",
+      "containerPath": "/mnt/R2.fastq",
+      "type": "bind"
+    }
+  ],
+
+  "nodes": [
+    {
+      "nodeId": "start",
+      "dag":    { "type": "start", "prev": [],            "next": ["prepare"] },
+      "container": {
+        "image": "alpine:latest",
+        "resources": {
+          "limits":   { "cpu": "250m", "memory": "256Mi" },
+          "requests": { "cpu": "250m", "memory": "256Mi" }
+        },
+        "mounts": [
+          {
+            "type": "volume",
+            "name": "ref-fa",
+            "hostPath": "/data/ref.fa",
+            "containerPath": "/mnt/ref.fa",
+            "accessMode": "ro"
+          }
+        ]
+      }
+    },
+    {
+      "nodeId": "prepare",
+      "dag":    { "type": "init",  "prev": ["start"],     "next": ["1"] },
+      "container": {
+        "image": "alpine:latest",
+        "userScript": "sh -c 'mkdir -p /overlay/lower /overlay/1-upper /overlay/1-work /overlay/2-upper /overlay/2-work /overlay/3-upper /overlay/3-work /overlay/4-upper /overlay/4-work /overlay/5-upper /overlay/5-work /overlay/6-upper /overlay/6-work'",
+        "mounts": [
+          { "type": "bind", "hostPath": "/mnt/overlay/lower",              "containerPath": "/overlay/lower" },
+          { "type": "bind", "hostPath": "/mnt/overlay/${runId}/1-upper",   "containerPath": "/overlay/1-upper" },
+          { "type": "bind", "hostPath": "/mnt/overlay/${runId}/1-work",    "containerPath": "/overlay/1-work" },
+          { "type": "bind", "hostPath": "/mnt/overlay/${runId}/2-upper",   "containerPath": "/overlay/2-upper" },
+          { "type": "bind", "hostPath": "/mnt/overlay/${runId}/2-work",    "containerPath": "/overlay/2-work" },
+          { "type": "bind", "hostPath": "/mnt/overlay/${runId}/3-upper",   "containerPath": "/overlay/3-upper" },
+          { "type": "bind", "hostPath": "/mnt/overlay/${runId}/3-work",    "containerPath": "/overlay/3-work" },
+          { "type": "bind", "hostPath": "/mnt/overlay/${runId}/4-upper",   "containerPath": "/overlay/4-upper" },
+          { "type": "bind", "hostPath": "/mnt/overlay/${runId}/4-work",    "containerPath": "/overlay/4-work" },
+          { "type": "bind", "hostPath": "/mnt/overlay/${runId}/5-upper",   "containerPath": "/overlay/5-upper" },
+          { "type": "bind", "hostPath": "/mnt/overlay/${runId}/5-work",    "containerPath": "/overlay/5-work" },
+          { "type": "bind", "hostPath": "/mnt/overlay/${runId}/6-upper",   "containerPath": "/overlay/6-upper" },
+          { "type": "bind", "hostPath": "/mnt/overlay/${runId}/6-work",    "containerPath": "/overlay/6-work" }
+        ]
+      }
+    },
+    {
+      "nodeId": "1",
+      "dag":    { "type": "task",  "prev": ["prepare"],  "next": ["2","3","4"] },
+      "container": {
+        "image": "pipeline_imgA:latest",
+        "userScript": "#!/bin/sh\necho A…\n",
+        "resources": {
+          "limits":   { "cpu": "500m", "memory": "512Mi" },
+          "requests": { "cpu": "500m", "memory": "512Mi" }
+        },
+        "mounts": [
+          { "type": "overlay", "branch": "1", "containerPath": "/data/step1" },
+          { "type": "volume",  "name": "ref-fa", "hostPath": "/data/ref.fa", "containerPath": "/mnt/ref.fa", "accessMode": "ro" }
+        ]
+      }
+    },
+    {
+      "nodeId": "2",
+      "dag":    { "type": "task",  "prev": ["1"],        "next": ["5"] },
+      "container": {
+        "image": "pipeline_img1:latest",
+        "userScript": "#!/bin/sh\necho A1…\n",
+        "resources": {
+          "limits":   { "cpu": "500m", "memory": "512Mi" },
+          "requests": { "cpu": "500m", "memory": "512Mi" }
+        },
+        "mounts": [
+          { "type": "overlay", "branch": "2", "containerPath": "/data/step2" },
+          { "type": "volume",  "name": "ref-fa", "hostPath": "/data/ref.fa", "containerPath": "/mnt/ref.fa", "accessMode": "ro" }
+        ]
+      }
+    },
+    {
+      "nodeId": "3",
+      "dag":    { "type": "task",  "prev": ["1"],        "next": ["6"] },
+      "container": {
+        "image": "pipeline_img2:latest",
+        "userScript": "#!/bin/sh\necho A2…\n",
+        "resources": {
+          "limits":   { "cpu": "500m", "memory": "512Mi" },
+          "requests": { "cpu": "500m", "memory": "512Mi" }
+        },
+        "mounts": [
+          { "type": "overlay", "branch": "3", "containerPath": "/data/step3" },
+          { "type": "volume",  "name": "ref-fa", "hostPath": "/data/ref.fa", "containerPath": "/mnt/ref.fa", "accessMode": "ro" }
+        ]
+      }
+    },
+    {
+      "nodeId": "4",
+      "dag":    { "type": "task",  "prev": ["1"],        "next": ["6"] },
+      "container": {
+        "image": "pipeline_img3:latest",
+        "userScript": "#!/bin/sh\necho A3…\n",
+        "resources": {
+          "limits":   { "cpu": "500m", "memory": "512Mi" },
+          "requests": { "cpu": "500m", "memory": "512Mi" }
+        },
+        "mounts": [
+          { "type": "overlay", "branch": "4", "containerPath": "/data/step4" },
+          { "type": "volume",  "name": "ref-fa", "hostPath": "/data/ref.fa", "containerPath": "/mnt/ref.fa", "accessMode": "ro" }
+        ]
+      }
+    },
+    {
+      "nodeId": "5",
+      "dag":    { "type": "task",  "prev": ["2"],        "next": ["6"] },
+      "container": {
+        "image": "pipeline_imgB:latest",
+        "userScript": "#!/bin/sh\necho B…\n",
+        "resources": {
+          "limits":   { "cpu": "500m", "memory": "512Mi" },
+          "requests": { "cpu": "500m", "memory": "512Mi" }
+        },
+        "mounts": [
+          { "type": "overlay", "branch": "5", "containerPath": "/data/step5" },
+          { "type": "volume",  "name": "ref-fa", "hostPath": "/data/ref.fa", "containerPath": "/mnt/ref.fa", "accessMode": "ro" }
+        ]
+      }
+    },
+    {
+      "nodeId": "6",
+      "dag":    { "type": "task",  "prev": ["5","3","4"], "next": ["end"] },
+      "container": {
+        "image": "pipeline_imgC:latest",
+        "userScript": "#!/bin/sh\necho C…\n",
+        "resources": {
+          "limits":   { "cpu": "500m", "memory": "512Mi" },
+          "requests": { "cpu": "500m", "memory": "512Mi" }
+        },
+        "mounts": [
+          { "type": "overlay", "branch": "6", "containerPath": "/data/step6" },
+          { "type": "volume",  "name": "ref-fa", "hostPath": "/data/ref.fa", "containerPath": "/mnt/ref.fa", "accessMode": "ro" }
+        ]
+      }
+    },
+    {
+      "nodeId": "end",
+      "dag":    { "type": "end",   "prev": ["6"],        "next": [] },
+      "container": {
+        "image": "alpine:latest",
+        "resources": {
+          "limits":   { "cpu": "250m", "memory": "256Mi" },
+          "requests": { "cpu": "250m", "memory": "256Mi" }
+        },
+        "mounts": []
+      }
+    }
+  ]
+}
