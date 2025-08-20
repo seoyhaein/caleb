@@ -1,0 +1,219 @@
+{
+  "schemaVersion": "1.0",
+  "id": "pipelineA",
+  "runId": "20250806-153000-abcdef",
+  "name": "Pipeline A",
+  "createdAt": "2025-07-28T19:00:00Z",
+  "createdBy": "alice@example.com",
+  "metadata": {
+    "project": "genome-analysis",
+    "version": "v1.0"
+  },
+  "storage": {
+    "type": "overlay",
+    "pathStrategy": "literal",
+    "mountStrategy": "host-overlay-bind",
+    "common": {
+      "baseDir": "/mnt/overlay",
+      "lowerDir": "@baseDir/lower",
+      "mergedBase": "@baseDir/@id/@runId/merged"
+    }
+  },
+  "inputsPolicy": { "autobindAllTasks": true, "mode": "ro" },
+  "envDefaults": { "TMPDIR": ".tmp", "XDG_CACHE_HOME": ".cache", "HOME": "." },
+  "cleanupPolicy": { "onSuccess": "remove", "onFailure": "retain" },
+  "inputs": [
+    { "name": "sample_R1.fastq", "hostPath": "/data/samples/set1/R1.fastq", "containerPath": "/mnt/R1.fastq", "type": "bind" },
+    { "name": "sample_R2.fastq", "hostPath": "/data/samples/set1/R2.fastq", "containerPath": "/mnt/R2.fastq", "type": "bind" }
+  ],
+  "nodes": {
+    "start": {
+      "type": "start",
+      "ui": { "position": { "x": 400, "y": 50 } },
+      "graph": { "dependsOn": [] },
+      "storage": {
+        "host": { "upperDir": null, "workDir": null, "mergedDir": null, "lowerDirs": [] },
+        "containerPath": null
+      },
+      "container": {
+        "image": "alpine:latest",
+        "env": { "runId": "20250806-153000-abcdef" },
+        "resources": { "limits": { "cpu": "250m", "memory": "256Mi" }, "requests": { "cpu": "250m", "memory": "256Mi" } },
+        "userScript": "#!/bin/sh\nset -eu\nRUN_DIR=\"/overlay/${runId}\"\nmkdir -p /overlay/lower \"$RUN_DIR\" \"$RUN_DIR/merged\"\nfor i in 1 2 3 4 5 6; do\n  mkdir -p \"$RUN_DIR/${i}-upper\" \"$RUN_DIR/${i}-work\" \"$RUN_DIR/merged/$i/.tmp\" \"$RUN_DIR/merged/$i/.cache\"\ndone\necho \"start: prepared directories under $RUN_DIR\" > \"$RUN_DIR/merged/1/START_READY.txt\" || true\n",
+        "mounts": [
+          { "type": "bind", "hostPath": "/mnt/overlay", "containerPath": "/overlay" }
+        ]
+      }
+    },
+    "1": {
+      "type": "task",
+      "ui": { "position": { "x": 400, "y": 180 } },
+      "graph": { "dependsOn": ["start"] },
+      "storage": {
+        "host": {
+          "upperDir": "/mnt/overlay/20250806-153000-abcdef/1-upper",
+          "workDir": "/mnt/overlay/20250806-153000-abcdef/1-work",
+          "mergedDir": "/mnt/overlay/20250806-153000-abcdef/merged/1",
+          "lowerDirs": ["/mnt/overlay/lower"]
+        },
+        "containerPath": "/data/step1"
+      },
+      "container": {
+        "image": "pipeline_imgA:latest",
+        "env": { "TMPDIR": "/data/step1/.tmp", "XDG_CACHE_HOME": "/data/step1/.cache", "HOME": "/data/step1" },
+        "resources": { "limits": { "cpu": "500m", "memory": "512Mi" }, "requests": { "cpu": "500m", "memory": "512Mi" } },
+        "userScript": "#!/bin/sh\nset -eu\nOUT=/data/step1\nmkdir -p \"$OUT\"\necho \"A: generated $(date -u +%FT%TZ)\" > \"$OUT/A.txt\"\nif [ -f /mnt/R1.fastq ]; then bytes=$(wc -c < /mnt/R1.fastq); echo \"R1.fastq bytes=$bytes\" >> \"$OUT/input_info.txt\"; else echo \"R1.fastq=N/A\" >> \"$OUT/input_info.txt\"; fi\nif [ -f /mnt/R2.fastq ]; then bytes=$(wc -c < /mnt/R2.fastq); echo \"R2.fastq bytes=$bytes\" >> \"$OUT/input_info.txt\"; else echo \"R2.fastq=N/A\" >> \"$OUT/input_info.txt\"; fi\nls -la \"$OUT\" > \"$OUT/list1.txt\"\necho \"node1: done\" >&2\n",
+        "mounts": [
+          { "type": "volume", "name": "ref-fa", "hostPath": "/data/ref.fa", "containerPath": "/mnt/ref.fa", "accessMode": "ro" }
+        ]
+      }
+    },
+    "2": {
+      "type": "task",
+      "ui": { "position": { "x": 100, "y": 280 } },
+      "graph": { "dependsOn": ["1"] },
+      "storage": {
+        "host": {
+          "upperDir": "/mnt/overlay/20250806-153000-abcdef/2-upper",
+          "workDir": "/mnt/overlay/20250806-153000-abcdef/2-work",
+          "mergedDir": "/mnt/overlay/20250806-153000-abcdef/merged/2",
+          "lowerDirs": [
+            "/mnt/overlay/lower",
+            "/mnt/overlay/20250806-153000-abcdef/merged/1"
+          ]
+        },
+        "containerPath": "/data/step2"
+      },
+      "container": {
+        "image": "pipeline_img1:latest",
+        "env": { "TMPDIR": "/data/step2/.tmp", "XDG_CACHE_HOME": "/data/step2/.cache", "HOME": "/data/step2" },
+        "resources": { "limits": { "cpu": "500m", "memory": "512Mi" }, "requests": { "cpu": "500m", "memory": "512Mi" } },
+        "userScript": "#!/bin/sh\nset -eu\nINOUT=/data/step2\n[ -f \"$INOUT/A.txt\" ] || { echo \"node2: missing A.txt from node1\" >&2; exit 1; }\ncp \"$INOUT/A.txt\" \"$INOUT/A_from_1.txt\"\necho \"B: generated $(date -u +%FT%TZ)\" > \"$INOUT/B.txt\"\nls -1 \"$INOUT\" > \"$INOUT/list2.txt\"\necho \"node2: ok\" >&2\n",
+        "mounts": [
+          { "type": "volume", "name": "ref-fa", "hostPath": "/data/ref.fa", "containerPath": "/mnt/ref.fa", "accessMode": "ro" }
+        ]
+      }
+    },
+    "3": {
+      "type": "task",
+      "ui": { "position": { "x": 400, "y": 280 } },
+      "graph": { "dependsOn": ["1"] },
+      "storage": {
+        "host": {
+          "upperDir": "/mnt/overlay/20250806-153000-abcdef/3-upper",
+          "workDir": "/mnt/overlay/20250806-153000-abcdef/3-work",
+          "mergedDir": "/mnt/overlay/20250806-153000-abcdef/merged/3",
+          "lowerDirs": [
+            "/mnt/overlay/lower",
+            "/mnt/overlay/20250806-153000-abcdef/merged/1"
+          ]
+        },
+        "containerPath": "/data/step3"
+      },
+      "container": {
+        "image": "pipeline_img2:latest",
+        "env": { "TMPDIR": "/data/step3/.tmp", "XDG_CACHE_HOME": "/data/step3/.cache", "HOME": "/data/step3" },
+        "resources": { "limits": { "cpu": "500m", "memory": "512Mi" }, "requests": { "cpu": "500m", "memory": "512Mi" } },
+        "userScript": "#!/bin/sh\nset -eu\nINOUT=/data/step3\n[ -f \"$INOUT/A.txt\" ] || { echo \"node3: missing A.txt from node1\" >&2; exit 1; }\necho \"C: generated $(date -u +%FT%TZ)\" > \"$INOUT/C.txt\"\nls -1 \"$INOUT\" > \"$INOUT/list3.txt\"\necho \"node3: ok\" >&2\n",
+        "mounts": [
+          { "type": "volume", "name": "ref-fa", "hostPath": "/data/ref.fa", "containerPath": "/mnt/ref.fa", "accessMode": "ro" }
+        ]
+      }
+    },
+    "4": {
+      "type": "task",
+      "ui": { "position": { "x": 700, "y": 280 } },
+      "graph": { "dependsOn": ["1"] },
+      "storage": {
+        "host": {
+          "upperDir": "/mnt/overlay/20250806-153000-abcdef/4-upper",
+          "workDir": "/mnt/overlay/20250806-153000-abcdef/4-work",
+          "mergedDir": "/mnt/overlay/20250806-153000-abcdef/merged/4",
+          "lowerDirs": [
+            "/mnt/overlay/lower",
+            "/mnt/overlay/20250806-153000-abcdef/merged/1"
+          ]
+        },
+        "containerPath": "/data/step4"
+      },
+      "container": {
+        "image": "pipeline_img3:latest",
+        "env": { "TMPDIR": "/data/step4/.tmp", "XDG_CACHE_HOME": "/data/step4/.cache", "HOME": "/data/step4" },
+        "resources": { "limits": { "cpu": "500m", "memory": "512Mi" }, "requests": { "cpu": "500m", "memory": "512Mi" } },
+        "userScript": "#!/bin/sh\nset -eu\nINOUT=/data/step4\n[ -f \"$INOUT/A.txt\" ] || { echo \"node4: missing A.txt from node1\" >&2; exit 1; }\necho \"D: generated $(date -u +%FT%TZ)\" > \"$INOUT/D.txt\"\nls -1 \"$INOUT\" > \"$INOUT/list4.txt\"\necho \"node4: ok\" >&2\n",
+        "mounts": [
+          { "type": "volume", "name": "ref-fa", "hostPath": "/data/ref.fa", "containerPath": "/mnt/ref.fa", "accessMode": "ro" }
+        ]
+      }
+    },
+    "5": {
+      "type": "task",
+      "ui": { "position": { "x": 100, "y": 380 } },
+      "graph": { "dependsOn": ["2"] },
+      "storage": {
+        "host": {
+          "upperDir": "/mnt/overlay/20250806-153000-abcdef/5-upper",
+          "workDir": "/mnt/overlay/20250806-153000-abcdef/5-work",
+          "mergedDir": "/mnt/overlay/20250806-153000-abcdef/merged/5",
+          "lowerDirs": [
+            "/mnt/overlay/lower",
+            "/mnt/overlay/20250806-153000-abcdef/merged/2"
+          ]
+        },
+        "containerPath": "/data/step5"
+      },
+      "container": {
+        "image": "pipeline_imgB:latest",
+        "env": { "TMPDIR": "/data/step5/.tmp", "XDG_CACHE_HOME": "/data/step5/.cache", "HOME": "/data/step5" },
+        "resources": { "limits": { "cpu": "500m", "memory": "512Mi" }, "requests": { "cpu": "500m", "memory": "512Mi" } },
+        "userScript": "#!/bin/sh\nset -eu\nINOUT=/data/step5\n[ -f \"$INOUT/B.txt\" ] || { echo \"node5: missing B.txt from node2\" >&2; exit 1; }\necho \"E: generated $(date -u +%FT%TZ)\" > \"$INOUT/E.txt\"\nls -1 \"$INOUT\" > \"$INOUT/list5.txt\"\necho \"node5: ok\" >&2\n",
+        "mounts": [
+          { "type": "volume", "name": "ref-fa", "hostPath": "/data/ref.fa", "containerPath": "/mnt/ref.fa", "accessMode": "ro" }
+        ]
+      }
+    },
+    "6": {
+      "type": "task",
+      "ui": { "position": { "x": 550, "y": 380 } },
+      "graph": { "dependsOn": ["3", "4", "5"] },
+      "storage": {
+        "host": {
+          "upperDir": "/mnt/overlay/20250806-153000-abcdef/6-upper",
+          "workDir": "/mnt/overlay/20250806-153000-abcdef/6-work",
+          "mergedDir": "/mnt/overlay/20250806-153000-abcdef/merged/6",
+          "lowerDirs": [
+            "/mnt/overlay/lower",
+            "/mnt/overlay/20250806-153000-abcdef/merged/3",
+            "/mnt/overlay/20250806-153000-abcdef/merged/4",
+            "/mnt/overlay/20250806-153000-abcdef/merged/5"
+          ]
+        },
+        "containerPath": "/data/step6"
+      },
+      "container": {
+        "image": "pipeline_imgC:latest",
+        "env": { "TMPDIR": "/data/step6/.tmp", "XDG_CACHE_HOME": "/data/step6/.cache", "HOME": "/data/step6" },
+        "resources": { "limits": { "cpu": "500m", "memory": "512Mi" }, "requests": { "cpu": "500m", "memory": "512Mi" } },
+        "userScript": "#!/bin/sh\nset -eu\nINOUT=/data/step6\nfor f in C.txt D.txt E.txt; do\n  [ -f \"$INOUT/$f\" ] || { echo \"node6: missing $f from predecessors\" >&2; exit 1; }\ndone\n{\n  echo \"summary generated $(date -u +%FT%TZ)\";\n  echo \"--- C.txt ---\"; cat \"$INOUT/C.txt\";\n  echo \"--- D.txt ---\"; cat \"$INOUT/D.txt\";\n  echo \"--- E.txt ---\"; cat \"$INOUT/E.txt\";\n} > \"$INOUT/summary.txt\"\nls -1 \"$INOUT\" > \"$INOUT/list6.txt\"\necho \"node6: ok\" >&2\n",
+        "mounts": [
+          { "type": "volume", "name": "ref-fa", "hostPath": "/data/ref.fa", "containerPath": "/mnt/ref.fa", "accessMode": "ro" }
+        ]
+      }
+    },
+    "end": {
+      "type": "end",
+      "ui": { "position": { "x": 400, "y": 480 } },
+      "graph": { "dependsOn": ["6"] },
+      "storage": {
+        "host": { "upperDir": null, "workDir": null, "mergedDir": null, "lowerDirs": [] },
+        "containerPath": null
+      },
+      "container": {
+        "image": "alpine:latest",
+        "resources": { "limits": { "cpu": "250m", "memory": "256Mi" }, "requests": { "cpu": "250m", "memory": "256Mi" } },
+        "userScript": "#!/bin/sh\nset -eu\necho \"end: pipeline finished\" >&2\n",
+        "mounts": []
+      }
+    }
+  }
+}
