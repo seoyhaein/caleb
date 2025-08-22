@@ -32,9 +32,6 @@
     "pathNaming": { "containerPathFrom": "inputName" }
   },
 
-  "envDefaults": { "TMPDIR": ".tmp", "XDG_CACHE_HOME": ".cache", "HOME": "." },
-  "cleanupPolicy": { "onSuccess": "remove", "onFailure": "retain" },
-
   "inputs": [
     {
       "name": "sample_R1.fastq",
@@ -49,6 +46,9 @@
       "attach": { "nodes": ["1"] }
     }
   ],
+
+  "envDefaults": { "TMPDIR": ".tmp", "XDG_CACHE_HOME": ".cache", "HOME": "." },
+  "cleanupPolicy": { "onSuccess": "remove", "onFailure": "retain" },
 
   "nodes": {
     "start": {
